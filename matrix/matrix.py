@@ -10,9 +10,12 @@ Matrix Building class
 """
 import numpy as np
 
-class matrix:
-    
+class Matrix:
     def __init__(self, matrixRange, cellSize=(100,100,50)):
+        """
+        :param matrixRange: （areaLength, areaWidth, areaHeight）
+        :param cellSize: (cellLength, cellWidth, cellHeight)
+        """
         self.matrixRange =  matrixRange
         self.cellLength, self.cellWidth, self.cellHeight = cellSize
         self.horizontalDist = np.sqrt(self.cellLength*self.cellLength+self.cellWidth*self.cellWidth)
@@ -132,5 +135,4 @@ class matrix:
                     if lz>=0:
                         link.append((int(lx+hy*indexRange[0]+lz*indexRange[0]*indexRange[1]), self.diagonalDist, 3))
             self.network.append(link)
-            
             

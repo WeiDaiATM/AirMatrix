@@ -9,43 +9,51 @@ time is computed from distance and aircraft speed.
 
 """
 # import pandas as np
-
+# TODO: validate the gain of G and H
 class Point:
-    def __init__(self,x,y,z):
-        self.x=x;self.y=y;self.z=z
- 
+    def __init__(self, index):
+        self.x = index[0]
+        self.y = index[1]
+        self.z = index[2]
+
     def __eq__(self, other):
-        if self.x==other.x and self.y==other.y and self.z==other.z:
+        if self.x == other.x and self.y == other.y and self.z == other.z:
             return True
         return False
+
     def __str__(self):
         return "x:"+str(self.x)+",y:"+str(self.y)+",z:"+str(self.z)
-                       
-    
+
+
 class Node:
-    def __init__(self, point, endPoint, indexRange, g=0):
+    def __init__(self, point, endPoint, g=0):
+        """
+        :param point: (x,y,z)
+        :param endPoint: (x,y,z)
+        :param g: NA
+        """
         self.point = point  # coordinate
+        self.endPoint = endPoint
         self.g = g
-        self.h = (abs(endPoint[0] - point[0]) + abs(endPoint[1] - point[1]) + abs(endPoint[2] - point[2]))
-        # self.hIndex = (abs(endPoint[0] - point[0]),abs(endPoint[1] - point[1]),abs(endPoint[2] - point[2]))  # manhattan distance
-        self.index = int(point[0]+point[1]*indexRange[0]+point[2]*indexRange[0]*indexRange[1])
+        self.h = abs(self.endPoint.x - self.point.x) + abs(self.endPoint.y - self.point.y) + abs(self.endPoint.z -
+                                                                                                 self.point.z)
         self.father = None
-        
+
 class Aircraft:
     def __init__(self, speed):
         """
         :param speed: (horizontal, vertical, 45degree, 35degree)
         """
         self.speed = speed
-        
-        
+
+
 class AStar:
     # 3-d a star algorithm
     def __init__(self, matrix, startPoint, endPoint, aircraft):
         """
-        :param matrix: pre-generated matrix object
-        :param startPoint: (x,y,z)
-        :param endPoint: (x,y,z)
+        :param matrix: pre-generated atrix object
+        :param startPoint: Point(x,y,z)
+        :param endPoint: Point(x,y,z)
         :param aircraft: aircraft object
         """
         self.openList = []
@@ -55,7 +63,7 @@ class AStar:
         self.endPoint = endPoint
         self.matrix = matrix
         self.aircraft = aircraft
-    
+
     def GetMinNode(self):
         """
         get the node with min F value in openList
@@ -66,7 +74,7 @@ class AStar:
             if node.g + node.h < currentNode.g + currentNode.h:
                 currentNode = node
         return currentNode
-    
+
     def PointInCloseList(self, point):
         """
         see if node is in open list
@@ -75,40 +83,42 @@ class AStar:
             if node.point == point:
                 return True
         return False
- 
+
     def PointInOpenList(self, point):
         for node in self.openList:
             if node.point == point:
                 return node
         return None
-    
+
     def EndPointInCloseList(self):
         for node in self.openList:
             if node.point == self.endPoint:
                 return node
         return None
-    
+
     def Search(self):
         # add startPoint to openList
-        startNode = Node(self.startPoint, self.endPoint, self.matrix.indexRange)
+        startNode = Node(self.startPoint, self.endPoint)
         self.openList.append(startNode)
         # search
         while True:
             # find minF
             minF = self.GetMinNode()
-            
+
             # minF to closeList
             self.closeList.append(minF)
             self.openList.remove(minF)
-            
+
             # test the neighbour of minF
-            neighbours = self.matrix.network[minF.index]
+            # neighbours = self.matrix.network[minF.index]
+            neighbours = self.matrix.network[int(minF.point.x + minF.point.y *
+                                                 self.matrix.indexRange[0] + minF.point.z * self.matrix.indexRange[0] *
+                                                 self.matrix.indexRange[1])]
             for next in neighbours:
                 currentPoint = Point(self.matrix.nodeList[next[0]]["index"])
                 if self.PointInCloseList(currentPoint):# ignore if in close list
                     continue
-                nextNode = Node(currentPoint, self.endPoint, self.matrix.indexRange)
-                # nextNode.h = nextNode.hIndex[0]*self.matrix.cellLength + nextNode.hIndex[1]*self.matrix.cellWidth + nextNode.hIndex[2]*self.matrix.cellHeight
+                nextNode = Node(currentPoint, self.endPoint)
                 nextNode.g = minF.g + next[1]/self.aircraft.speed[next[2]]
 
                 existNode = self.PointInOpenList(currentPoint) # return if the node exist in open list
@@ -133,4 +143,3 @@ class AStar:
 
 
 
-    
