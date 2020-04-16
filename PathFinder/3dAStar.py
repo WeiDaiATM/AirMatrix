@@ -8,8 +8,8 @@ A-Star algorithm with time cost
 time is computed from distance and aircraft speed.
 
 """
+import numpy as np
 # import pandas as np
-# TODO: validate the gain of G and H
 class Point:
     def __init__(self, index):
         self.x = index[0]
@@ -26,7 +26,7 @@ class Point:
 
 
 class Node:
-    def __init__(self, point, endPoint, g=0):
+    def __init__(self, point, endPoint, gainHorizontal = 5, gainVertical = 10, g=0):
         """
         :param point: (x,y,z)
         :param endPoint: (x,y,z)
@@ -35,16 +35,29 @@ class Node:
         self.point = point  # coordinate
         self.endPoint = endPoint
         self.g = g
-        self.h = abs(self.endPoint.x - self.point.x) + abs(self.endPoint.y - self.point.y) + abs(self.endPoint.z -
-                                                                                                 self.point.z)
+        self.h = gainHorizontal * abs(self.endPoint.x - self.point.x) + gainHorizontal * \
+                 abs(self.endPoint.y - self.point.y) + gainVertical * abs(self.endPoint.z - self.point.z)
         self.father = None
 
 class Aircraft:
-    def __init__(self, speed):
+    def __init__(self, horizontalSpeed, verticalSpeed, mass):
         """
-        :param speed: (horizontal, vertical, 45degree, 35degree)
+        :param speed: (horizontal, vertical)
         """
-        self.speed = speed
+        self.horizontalSpeed = horizontalSpeed
+        self.verticalSpeed = verticalSpeed
+        self.mass = mass
+        self.dragCoef = (self.verticalSpeed * self.mass * 10) / \
+                    (self.horizontalSpeed * self.horizontalSpeed - self.verticalSpeed * self.verticalSpeed)
+        self.pMax = self.verticalSpeed * self.verticalSpeed * self.dragCoef
+        self.speed = None
+
+    def SetSpeed(self, sinTheta1, sinTheta2):
+        climbSpeed1 = (-self.mass * 10 * sinTheta1 + np.sqrt(
+            self.mass * self.mass * 100 * sinTheta1 * sinTheta1 + 4 * self.dragCoef * self.pMax)) / 2 / self.dragCoef
+        climbSpeed2 = (-self.mass * 10 * sinTheta2 + np.sqrt(
+            self.mass * self.mass * 100 * sinTheta2 * sinTheta2 + 4 * self.dragCoef * self.pMax)) / 2 / self.dragCoef
+        self.speed = (self.horizontalSpeed, self.verticalSpeed, climbSpeed1, climbSpeed2)
 
 
 class AStar:
@@ -63,6 +76,9 @@ class AStar:
         self.endPoint = endPoint
         self.matrix = matrix
         self.aircraft = aircraft
+        self.aircraft.SetSpeed(self.matrix.sinTheta1, self.matrix.sinTheta2)
+        self.gainHorizontal = self.matrix.cellWidth / self.aircraft.horizontalSpeed
+        self.gainVertical = self.matrix.cellHeight / self.aircraft.verticalSpeed
 
     def GetMinNode(self):
         """
@@ -98,7 +114,7 @@ class AStar:
 
     def Search(self):
         # add startPoint to openList
-        startNode = Node(self.startPoint, self.endPoint)
+        startNode = Node(self.startPoint, self.endPoint, self.gainHorizontal, self.gainVertical)
         self.openList.append(startNode)
         # search
         while True:
@@ -114,12 +130,12 @@ class AStar:
             neighbours = self.matrix.network[int(minF.point.x + minF.point.y *
                                                  self.matrix.indexRange[0] + minF.point.z * self.matrix.indexRange[0] *
                                                  self.matrix.indexRange[1])]
-            for next in neighbours:
-                currentPoint = Point(self.matrix.nodeList[next[0]]["index"])
+            for nextIndex in neighbours:
+                currentPoint = Point(self.matrix.nodeList[nextIndex[0]]["index"])
                 if self.PointInCloseList(currentPoint):# ignore if in close list
                     continue
-                nextNode = Node(currentPoint, self.endPoint)
-                nextNode.g = minF.g + next[1]/self.aircraft.speed[next[2]]
+                nextNode = Node(currentPoint, self.endPoint, self.gainHorizontal, self.gainVertical)
+                nextNode.g = minF.g + nextIndex[1]/self.aircraft.speed[nextIndex[2]]
 
                 existNode = self.PointInOpenList(currentPoint) # return if the node exist in open list
                 if not existNode:

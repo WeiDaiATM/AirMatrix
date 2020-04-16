@@ -11,13 +11,18 @@ Matrix Building class
 import numpy as np
 
 class Matrix:
-    def __init__(self, matrixRange, cellSize=(100,100,50)):
+    def __init__(self, matrixRange, cellLength = 100, cellHeight = 100):
         """
-        :param matrixRange: （areaLength, areaWidth, areaHeight）
-        :param cellSize: (cellLength, cellWidth, cellHeight)
+
+        :param matrixRange: (x,y,z)
+        :param cellLength:
+        :param cellHeight:
+        cellLength = cellWidth
         """
         self.matrixRange =  matrixRange
-        self.cellLength, self.cellWidth, self.cellHeight = cellSize
+        self.cellLength = cellLength
+        self.cellWidth = cellLength
+        self.cellHeight = cellHeight
         self.horizontalDist = np.sqrt(self.cellLength*self.cellLength+self.cellWidth*self.cellWidth)
         self.verticalDist = np.sqrt(self.cellLength*self.cellLength+self.cellHeight*self.cellHeight) # assuming width = length
         self.diagonalDist = np.sqrt(self.cellLength*self.cellLength+self.cellWidth*self.cellWidth+
@@ -26,7 +31,10 @@ class Matrix:
               int(matrixRange[2]/self.cellHeight+1))
         
         self.nodeList = list()
-        
+
+        self.sinTheta1 = self.cellHeight/self.cellLength
+        self.sinTheta2 = self.cellHeight/np.sqrt(self.cellLength * self.cellLength + self.cellWidth * self.cellWidth)
+
         indexRange = self.indexRange
         for z in range(indexRange[2]):
             for y in range(indexRange[1]):
