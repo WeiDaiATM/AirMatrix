@@ -40,12 +40,12 @@ class Node:
         self.father = None
 
 class Aircraft:
-    def __init__(self, horizontalSpeed, verticalSpeed, mass):
+    def __init__(self, horizontalMaxSpeed = 25, verticalMaxSpeed = 5, mass):
         """
         :param speed: (horizontal, vertical)
         """
-        self.horizontalSpeed = horizontalSpeed
-        self.verticalSpeed = verticalSpeed
+        self.horizontalSpeed = horizontalMaxSpeed
+        self.verticalSpeed = verticalMaxSpeed
         self.mass = mass
         self.dragCoef = (self.verticalSpeed * self.mass * 10) / \
                     (self.horizontalSpeed * self.horizontalSpeed - self.verticalSpeed * self.verticalSpeed)
@@ -53,11 +53,18 @@ class Aircraft:
         self.speed = None
 
     def SetSpeed(self, sinTheta1, sinTheta2):
+        """
+        used only in A Star path finder initiation
+        :param sinTheta1:
+        :param sinTheta2:
+        :return:
+        """
         climbSpeed1 = (-self.mass * 10 * sinTheta1 + np.sqrt(
-            self.mass * self.mass * 100 * sinTheta1 * sinTheta1 + 4 * self.dragCoef * self.pMax)) / 2 / self.dragCoef
+            self.mass * self.mass * 100 * sinTheta1 * sinTheta1 + 4 * self.dragCoef * self.pMax)) / 2 / self.dragCoef * 0.6
         climbSpeed2 = (-self.mass * 10 * sinTheta2 + np.sqrt(
-            self.mass * self.mass * 100 * sinTheta2 * sinTheta2 + 4 * self.dragCoef * self.pMax)) / 2 / self.dragCoef
-        self.speed = (self.horizontalSpeed, self.verticalSpeed, climbSpeed1, climbSpeed2)
+            self.mass * self.mass * 100 * sinTheta2 * sinTheta2 + 4 * self.dragCoef * self.pMax)) / 2 / self.dragCoef * 0.6
+        # take 60% of max speed as cruising speed
+        self.speed = (self.horizontalSpeed * 0.6, self.verticalSpeed * 0.6, climbSpeed1, climbSpeed2)
 
 
 class AStar:
