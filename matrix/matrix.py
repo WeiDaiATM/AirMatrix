@@ -6,7 +6,6 @@ Created on Wed Apr  8 10:25:14 2020
 @author: daiwei
 
 Matrix Building class
-TODO: Enhance efficiency
 """
 import numpy as np
 
@@ -106,24 +105,20 @@ class Matrix:
                             self.nodeList.append(newCell)
                     else:
                         self.nodeList.append(newCell)
-        self.indexList = list()
-        for node in self.nodeList:
-            self.indexList.append(node.index)
 
-    def IndexAvailable(self, index):
-        """
-        See if index is in the nodeList (not in a static obstacle)
-        :param index:
-        :return:
-        """
-        if index in self.indexList:
-            return True
-        return False
+        self.indexAvailable = np.zeros(indexRange[0] * indexRange[1] * indexRange[2])
+        for node in self.nodeList:
+            self.indexAvailable[node.index] = 1
+        self.indexAvailable = self.indexAvailable == 1
+
+        falses = np.zeros(indexRange[0] * indexRange[1] * 2) # too stupid, need to fix later!!!
+        falses = falses == 1
+        self.indexAvailable = np.append(self.indexAvailable, falses)
 
     def MatrixConstructor(self):
         self.network = list()
-        for i in range(len(self.nodeList)):
-            x, y, z = self.nodeList[i].x, self.nodeList[i].y, self.nodeList[i].z
+        for node in self.nodeList:
+            x, y, z = node.x, node.y, node.z
             lx = x - 1
             hx = x + 1
             ly = y - 1
@@ -146,152 +141,179 @@ class Matrix:
             indexRange = self.indexRange
             if lx >= 0:
                 index = int(lx + y * indexRange[0] + z * indexRange[0] * indexRange[1])
-                if self.IndexAvailable(index):
+                if self.indexAvailable[index]:
                     link.append((index, self.cellLength, 0))
+
                 if ly >= 0:
                     index = int(lx + ly * indexRange[0] + z * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.horizontalDist, 0))
+
                     if lz >= 0:
                         index = int(lx + ly * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
+
                     if hz <= indexRange[2]:
                         index = int(lx + ly * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
 
                 if lz >= 0:
                     index = int(lx + y * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
+
                 if hz <= indexRange[2]:
                     index = int(lx + y * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
+
                 if hy <= indexRange[1]:
                     index = int(lx + hy * indexRange[0] + z * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.horizontalDist, 0))
+
                     if hz <= indexRange[2]:
                         index = int(lx + hy * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
+
                     if lz >= 0:
                         index = int(lx + hy * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
 
             if ly >= 0:
                 index = int(x + ly * indexRange[0] + z * indexRange[0] * indexRange[1])
-                if self.IndexAvailable(index):
+                if self.indexAvailable[index]:
                     link.append((index, self.cellWidth, 0))
+
                 if hz <= indexRange[2]:
                     index = int(x + ly * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
+
                 if lz >= 0:
                     index = int(x + ly * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
+
             if lz >= 0:
                 index = int(x + y * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                if self.IndexAvailable(index):
+                if self.indexAvailable[index]:
                     link.append((index, self.cellHeight, 1))
+
             if hz <= indexRange[2]:
                 index = int(x + y * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                if self.IndexAvailable(index):
+                if self.indexAvailable[index]:
                     link.append((index, self.cellHeight, 1))
+
                 if hy <= indexRange[1]:
                     index = int(x + hy * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
+
             if hy <= indexRange[1]:
                 index = int(x + hy * indexRange[0] + z * indexRange[0] * indexRange[1])
-                if self.IndexAvailable(index):
+                if self.indexAvailable[index]:
                     link.append((index, self.cellWidth, 0))
+
                 if lz >= 0:
                     index = int(x + hy * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
 
             if hx <= indexRange[0]:
                 index = int(hx + y * indexRange[0] + z * indexRange[0] * indexRange[1])
-                if self.IndexAvailable(index):
+                if self.indexAvailable[index]:
                     link.append((index, self.cellLength, 0))
+
                 if lz >= 0:
                     index = int(hx + y * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
+
                 if hz <= indexRange[2]:
                     index = int(hx + y * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
 
                 if ly >= 0:
                     index = int(hx + ly * indexRange[0] + z * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.horizontalDist, 0))
+
                     if lz >= 0:
                         index = int(hx + ly * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
+
                     if hz <= indexRange[2]:
                         index = int(hx + ly * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
 
                 if hy <= indexRange[1]:
                     index = int(hx + hy * indexRange[0] + z * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.horizontalDist, 0))
+
                     if lz >= 0:
                         index = int(hx + hy * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
+
                     if hz <= indexRange[2]:
                         index = int(hx + hy * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
 
             if lx >= 0:
                 index = int(lx + y * indexRange[0] + z * indexRange[0] * indexRange[1])
-                if self.IndexAvailable(index):
+                if self.indexAvailable[index]:
                     link.append((index, self.cellLength, 0))
+
                 if ly >= 0:
                     index = int(lx + ly * indexRange[0] + z * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.horizontalDist, 0))
+
                     if lz >= 0:
                         index = int(lx + ly * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
+
                     if hz <= indexRange[2]:
                         index = int(lx + ly * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
 
                 if lz >= 0:
                     index = int(lx + y * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
+
                 if hz <= indexRange[2]:
                     index = int(lx + y * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
+
                 if hy <= indexRange[1]:
                     index = int(lx + hy * indexRange[0] + z * indexRange[0] * indexRange[1])
-                    if self.IndexAvailable(index):
+                    if self.indexAvailable[index]:
                         link.append((index, self.horizontalDist, 0))
+
                     if hz <= indexRange[2]:
                         index = int(lx + hy * indexRange[0] + hz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
+
                     if lz >= 0:
                         index = int(lx + hy * indexRange[0] + lz * indexRange[0] * indexRange[1])
-                        if self.IndexAvailable(index):
+                        if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
             self.network.append(link)
-            if len(self.network) % 1000 ==0:
+            if len(self.network) % 1000 == 0:
                 print(len(self.network))
 
