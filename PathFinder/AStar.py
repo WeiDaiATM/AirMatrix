@@ -9,8 +9,10 @@ time is computed from distance and aircraft speed.
 
 """
 import numpy as np
+from Matrix import MatrixBuilder
 # import pandas as np
-class Point:
+
+class Point(object):
     def __init__(self, index):
         self.x = index[0]
         self.y = index[1]
@@ -25,7 +27,7 @@ class Point:
         return "x:"+str(self.x)+",y:"+str(self.y)+",z:"+str(self.z)
 
 
-class Node:
+class Node(object):
     def __init__(self, point, endPoint, gainHorizontal = 5, gainVertical = 10, g=0):
         """
         :param point: (x,y,z)
@@ -39,8 +41,8 @@ class Node:
                  abs(self.endPoint.y - self.point.y) + gainVertical * abs(self.endPoint.z - self.point.z)
         self.father = None
 
-class Aircraft:
-    def __init__(self, horizontalMaxSpeed = 25, verticalMaxSpeed = 5, mass):
+class Aircraft(object):
+    def __init__(self, horizontalMaxSpeed=25, verticalMaxSpeed=5, mass=3):
         """
         :param speed: (horizontal, vertical)
         """
@@ -67,7 +69,7 @@ class Aircraft:
         self.speed = (self.horizontalSpeed * 0.6, self.verticalSpeed * 0.6, climbSpeed1, climbSpeed2)
 
 
-class AStar:
+class AStar(object):
     # 3-d a star algorithm
     def __init__(self, matrix, startPoint, endPoint, aircraft):
         """

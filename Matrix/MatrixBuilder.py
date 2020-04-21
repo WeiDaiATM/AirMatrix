@@ -9,8 +9,7 @@ Matrix Building class
 """
 import numpy as np
 
-
-class Building:
+class Building(object):
     def __init__(self, alt, lon, length, width, height):
         """
 
@@ -28,7 +27,7 @@ class Building:
         self.height = height
 
 
-class StaticObstacles:
+class StaticObstacles(object):
     def __init__(self):
         self.staticObsList = list()
 
@@ -47,7 +46,7 @@ class StaticObstacles:
             return True
 
 
-class Cell:
+class Cell(object):
     def __init__(self, x, y, z, cellLength, cellHeight):
         self.x = x
         self.y = y
@@ -65,7 +64,7 @@ class Cell:
         self.index = index
 
 
-class Matrix:
+class Matrix(object):
     def __init__(self, matrixRange, cellLength=100, cellHeight=100, obstacles=None):
         """
 
