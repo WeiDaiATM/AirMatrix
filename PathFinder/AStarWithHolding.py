@@ -9,6 +9,7 @@ from PathFinder import AStar
 
 class AStarWithHolding(AStar):
     def __init__(self):
+        None
 
         # plan trajectory
 

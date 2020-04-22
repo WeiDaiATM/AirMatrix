@@ -9,11 +9,11 @@ import numpy as np
 
 
 class DynamicObstacles(object):
-    def __init__(self, noNode, noSec):
-        self.dynamicObsList = np.zeros((noNode, noSec), dtype="uint8")
+    def __init__(self, maxNoNode, noSec):
+        self.dynamicObsList = np.zeros((maxNoNode, noSec), dtype="uint8")
 
     def SetDynamicObstacle(self, index, startTime, endTime):
-        self.dynamicObsList[index, startTime:endTime] = 1
+        self.dynamicObsArray[index, startTime:endTime] = 1
 
 
 

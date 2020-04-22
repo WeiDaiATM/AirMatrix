@@ -69,7 +69,7 @@ class Aircraft(object):
         self.speed = (self.horizontalSpeed * 0.6, self.verticalSpeed * 0.6, climbSpeed1, climbSpeed2)
 
 
-class AStar(object):
+class AStarClassic(object):
     # 3-d a star algorithm
     def __init__(self, matrix, startPoint, endPoint, aircraft):
         """
@@ -88,6 +88,12 @@ class AStar(object):
         self.aircraft.SetSpeed(self.matrix.sinTheta1, self.matrix.sinTheta2)
         self.gainHorizontal = self.matrix.cellWidth / self.aircraft.horizontalSpeed
         self.gainVertical = self.matrix.cellHeight / self.aircraft.verticalSpeed
+
+    # def __init__(self, matrix, flightPlan):
+    #     self.openList = []
+    #     self.closeList = []
+    #     self.matrix = matrix
+    #     self.flightPlan = flightPlan
 
     def GetMinNode(self):
         """
