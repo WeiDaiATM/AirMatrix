@@ -316,3 +316,16 @@ class Matrix(object):
             if len(self.network) % 1000 == 0:
                 print(len(self.network))
 
+    def FindCell(self, index):
+        maxIndex = len(self.network)-1
+        minIndex = 0
+        i = np.floor(maxIndex/2)
+        while True:
+            if self.network[i][0] == index:
+                return self.network[i]
+            if self.network[i][0] > index:
+                minIndex = i
+                i = np.floor((maxIndex+i)/2)
+            else:
+                maxIndex = i
+                i = np.floor((minIndex + i)/2)

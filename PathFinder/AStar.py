@@ -68,6 +68,30 @@ class Aircraft(object):
         # take 60% of max speed as cruising speed
         self.speed = (self.horizontalSpeed * 0.6, self.verticalSpeed * 0.6, climbSpeed1, climbSpeed2)
 
+class Trajectory(object):
+    """
+    Turn 3D node list into 4D trajectory
+    """
+    def __init__(self, matrix, nodeList, aircraft):
+        self.matrix = matrix
+        self.nodeList = nodeList
+        self.aircraft = aircraft
+
+        self.trajectory = list()
+        self.trajectory = self.trajectory.append(self.nodeList[0], 0)
+
+        t = 0
+        for node in self.nodeList.remove(self.nodeList[0]):
+            currentIndex = node.point.x + node.point.y * matrix.indexRange[0] + node.point.z * matrix.indexRange[0] * \
+                           matrix.indexRange[1]
+            links = matrix.FindCell(node.father.point.x + node.father.point.y * matrix.indexRange[0] +
+                                           node.father.point.z * matrix.indexRange[0] * matrix.indexRange[1])
+            for link in links:
+                if link[0] == currentIndex:
+                    distance = link[1]
+                    speed = aircraft.speed[link[2]]
+            t = t + np.floor(distance/speed)
+            self.trajectory.append(node, t)
 
 class AStarClassic(object):
     # 3-d a star algorithm
@@ -88,6 +112,7 @@ class AStarClassic(object):
         self.aircraft.SetSpeed(self.matrix.sinTheta1, self.matrix.sinTheta2)
         self.gainHorizontal = self.matrix.cellWidth / self.aircraft.horizontalSpeed
         self.gainVertical = self.matrix.cellHeight / self.aircraft.verticalSpeed
+        self.trajectory = None
 
     # def __init__(self, matrix, flightPlan):
     #     self.openList = []
@@ -142,7 +167,7 @@ class AStarClassic(object):
 
             # test the neighbour of minF
             # neighbours = self.matrix.network[minF.index]
-            neighbours = self.matrix.network[int(minF.point.x + minF.point.y *
+            neighbours = self.matrix.FindCell[int(minF.point.x + minF.point.y *
                                                  self.matrix.indexRange[0] + minF.point.z * self.matrix.indexRange[0] *
                                                  self.matrix.indexRange[1])]
             for nextIndex in neighbours:
@@ -168,7 +193,7 @@ class AStarClassic(object):
                         pathList.append(lastNode.point)
                         lastNode = lastNode.father
                     else:
-                        return list(reversed(pathList))
+                        return Trajectory(self.matrix, list(reversed(pathList)), self.aircraft)
             if len(self.openList)==0:
                 return None
 
