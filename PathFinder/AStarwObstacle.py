@@ -8,7 +8,6 @@ import numpy as np
 
 from PathFinder import AStar, DynamicObstacle
 
-
 class ASwO(AStar.AstarClassic):
     """
     algorithm for 4D trajectory planning using  A Star with obstacles (ASwO).
@@ -26,6 +25,7 @@ class ASwO(AStar.AstarClassic):
         :param dynamicObstacles:
         """
         super(ASwO, self).__init__(matrix, startPoint, endPoint, aircraft)
+        self.departureTime = startTime
         self.activeObstacles = dynamicObstacles.dynamicObsArray[: , startTime:(startTime+maxDuration)]
 
     def Search(self):
@@ -72,7 +72,7 @@ class ASwO(AStar.AstarClassic):
                         pathList.append(lastNode.point)
                         lastNode = lastNode.father
                     else:
-                        return list(reversed(pathList))
+                        return AStar.Trajectory(self.matrix, list(reversed(pathList)), self.aircraft, self.departureTime)
             if len(self.openList) == 0:
                 return None
 
@@ -84,3 +84,22 @@ class MultiASwO(object):
             self.dynamicObstacles = dynamicObstacles
         else:
             self.dynamicObstacles = DynamicObstacle(self.matrix.nodeList[len(self.matrix.nodeeList-1)].index, duration)
+        self.planResult = list()
+
+    def AddDynamicObstacle(self, trajectory):
+        startT = trajectory.trajectory[0][2]
+        atT = 0
+        for i in range(len(trajectory.trajectory)-1):
+            self.dynamicObstacles.SetDynamicObstacle(trajectory.trajectory[i][1], startT,
+                                                     np.ceil((trajectory.trajectory[i+1][2]-atT)/2))
+            startT = (trajectory.trajectory[i+1][2]-atT)/2
+            atT = trajectory.trajectory[i][2]
+        self.dynamicObstacles.SetDynamicObstacle(trajectory.trajectory[len(trajectory.trajectory)][1], startT,
+                                                 trajectory.trajectory[len(trajectory.trajectory)][2])
+
+    def MultiSearch(self):
+        for flight in self.trafficPlan.scheduledFlights:
+            pathFinder = ASwO(self.matrix, flight.startPoint, flight.endPoint, flight.aircraft, flight.departureTime, self.dynamicObstacles)
+            plannedTrajectory = pathFinder.Search()
+            self.AddDynamicObstacle(plannedTrajectory)
+            self.planResult.append(plannedTrajectory)
