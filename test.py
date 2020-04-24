@@ -1,6 +1,7 @@
 
 from Matrix import MatrixBuilder
 from PathFinder import AStar
+from PathFinder import AStarwObstacle
 
 airmatrix = MatrixBuilder.Matrix((3000, 3000, 1000))
 airmatrix.MatrixConstructor()
