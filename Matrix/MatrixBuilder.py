@@ -313,19 +313,31 @@ class Matrix(object):
                         if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
             self.network.append(link)
-            if len(self.network) % 1000 == 0:
-                print(len(self.network))
 
-    def FindCell(self, index):
-        maxIndex = len(self.network)-1
+    def FindInNetwork(self, index):
+        maxIndex = len(self.nodeList)-1
         minIndex = 0
-        i = np.floor(maxIndex/2)
+        i = int(maxIndex/2)
         while True:
-            if self.network[i][0] == index:
+            if self.nodeList[i].index == index:
                 return self.network[i]
-            if self.network[i][0] > index:
+            if self.nodeList[i].index < index:
                 minIndex = i
-                i = np.floor((maxIndex+i)/2)
+                i = int((maxIndex+i)/2)
             else:
                 maxIndex = i
-                i = np.floor((minIndex + i)/2)
+                i = int((minIndex + i)/2)
+
+    def FindInNodelist(self, index):
+        maxIndex = len(self.nodeList) - 1
+        minIndex = 0
+        i = int(maxIndex / 2)
+        while True:
+            if self.nodeList[i].index == index:
+                return self.nodeList[i]
+            if self.nodeList[i].index < index:
+                minIndex = i
+                i = int((maxIndex + i) / 2)
+            else:
+                maxIndex = i
+                i = int((minIndex + i) / 2)
