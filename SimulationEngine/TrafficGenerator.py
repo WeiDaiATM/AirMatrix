@@ -4,7 +4,7 @@ from PathFinder import AStar
 import random
 
 class TrafficGenerator(object):
-    def __init__(self, matrix, aircraftBase, earliestDepartureTime=0, latestDepartureTime=900, noFlights=20):
+    def __init__(self, matrix, aircraftBase, noFlights=20, earliestDepartureTime=0, latestDepartureTime=900):
         self.trafficPlan = TrafficPlan.TrafficPlan()
 
         for i in range(noFlights):

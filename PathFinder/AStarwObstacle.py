@@ -3,6 +3,7 @@
 """
 Created on Tue Apr 21 13:12:14 2020
 @author: daiwei
+TODO: low efficiency when network is large. Need to lower the computation burden in complex mission (when shortest way is blocked).
 """
 import numpy as np
 
@@ -27,6 +28,7 @@ class ASwO(AStar.AStarClassic):
         super(ASwO, self).__init__(matrix, startPoint, endPoint, aircraft)
         self.departureTime = startTime
         self.activeObstacles = dynamicObstacles.dynamicObsList[:, startTime:(startTime+maxDuration)]
+        self.startTime = startTime
 
     # def Search(self):
     #     # plan trajectory with regading obstacles
@@ -78,7 +80,9 @@ class ASwO(AStar.AStarClassic):
 
     def Search(self):
         # add startPoint to openList
-        startNode = AStar.Node(self.startPoint, self.endPoint, self.gainHorizontal, self.gainVertical)
+        # startNode = AStar.Node(self.startPoint, self.endPoint, self.gainHorizontal, self.gainVertical)
+        startNode = AStar.Node(self.startPoint, self.endPoint, self.matrix.cellLength, self.matrix.cellHeight, self.aircraft.speed[0])
+
         self.openList.append(startNode)
         # search
         while True:
@@ -102,7 +106,9 @@ class ASwO(AStar.AStarClassic):
                                       self.matrix.FindInNodelist(nextIndex[0]).y, self.matrix.FindInNodelist(nextIndex[0]).z))
                 if self.PointInCloseList(currentPoint):  # ignore if in close list
                     continue
-                nextNode = AStar.Node(currentPoint, self.endPoint, self.gainHorizontal, self.gainVertical)
+                # nextNode = AStar.Node(currentPoint, self.endPoint, self.gainHorizontal, self.gainVertical)
+                nextNode = AStar.Node(currentPoint, self.endPoint, self.matrix.cellLength, self.matrix.cellHeight, self.aircraft.speed[0])
+
                 nextNode.g = minF.g + nextIndex[1] / self.aircraft.speed[nextIndex[2]]
 
                 existNode = self.PointInOpenList(currentPoint)  # return if the node exist in open list
@@ -121,10 +127,10 @@ class ASwO(AStar.AStarClassic):
                         pathList.append(lastNode)
                         lastNode = lastNode.father
                     else:
-                        #return list(reversed(pathList))
-                        return AStar.Trajectory(self.matrix, list(reversed(pathList)), self.aircraft)
+                        # return list(reversed(pathList))
+                        return AStar.Trajectory(self.matrix, list(reversed(pathList)), self.aircraft, self.startTime)
             if len(self.openList) == 0:
-                return None
+                return "None"
 
 class MultiASwO(object):
     def __init__(self, matrix, trafficPlan, duration, dynamicObstacles = None):
@@ -148,9 +154,12 @@ class MultiASwO(object):
                                                  trajectory.trajectory[len(trajectory.trajectory)-1][2])
 
     def MultiSearch(self):
+        i = 1
         for flight in self.trafficPlan.scheduledFlights:
             pathFinder = ASwO(self.matrix, flight.startPoint, flight.endPoint, flight.aircraft, flight.departureTime,
                               self.dynamicObstacles)
             plannedTrajectory = pathFinder.Search()
             self.AddDynamicObstacle(plannedTrajectory)
             self.planResult.append(plannedTrajectory)
+            print(i)
+            i = i + 1

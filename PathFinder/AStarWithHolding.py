@@ -6,9 +6,11 @@ Created on Tue Apr 21 13:12:14 2020
 """
 
 from PathFinder import AStar
+from PathFinder import DynamicObstacle
 
-class AStarWithHolding(AStar):
-    def __init__(self):
+class AStarWithHolding(object):
+    def __init__(self, matrix, trafficPlan, dynamicObstacles):
+
         None
 
         # plan trajectory

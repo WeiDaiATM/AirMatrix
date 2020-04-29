@@ -39,9 +39,9 @@ class StaticObstacles(object):
             # if a cell and a building overlap each other
             if (cell.alt - 0.5 * cell.height) >= obs.height or (
                     cell.lon - 0.5 * cell.length) >= (obs.lon + 0.5 * obs.length) or (
-                    cell.lon + 0.5 * cell.length) <= (obs.lon - 0.5 * obs.length) or (
+                    cell.lon + 0.5 * cell.length) < (obs.lon - 0.5 * obs.length) or (
                     cell.lat - 0.5 * cell.width) >= (obs.lat + 0.5 * obs.width) or (
-                    cell.lat + 0.5 * cell.width) <= (obs.lat - 0.5 * obs.width):
+                    cell.lat + 0.5 * cell.width) < (obs.lat - 0.5 * obs.width):
                 return False
             return True
 
@@ -153,7 +153,7 @@ class Matrix(object):
                         if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
 
-                    if hz <= indexRange[2]:
+                    if hz < indexRange[2]:
                         index = int(lx + ly * indexRange[0] + hz * indexRange[0] * indexRange[1])
                         if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
@@ -163,17 +163,17 @@ class Matrix(object):
                     if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
 
-                if hz <= indexRange[2]:
+                if hz < indexRange[2]:
                     index = int(lx + y * indexRange[0] + hz * indexRange[0] * indexRange[1])
                     if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
 
-                if hy <= indexRange[1]:
+                if hy < indexRange[1]:
                     index = int(lx + hy * indexRange[0] + z * indexRange[0] * indexRange[1])
                     if self.indexAvailable[index]:
                         link.append((index, self.horizontalDist, 0))
 
-                    if hz <= indexRange[2]:
+                    if hz < indexRange[2]:
                         index = int(lx + hy * indexRange[0] + hz * indexRange[0] * indexRange[1])
                         if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
@@ -188,7 +188,7 @@ class Matrix(object):
                 if self.indexAvailable[index]:
                     link.append((index, self.cellWidth, 0))
 
-                if hz <= indexRange[2]:
+                if hz < indexRange[2]:
                     index = int(x + ly * indexRange[0] + hz * indexRange[0] * indexRange[1])
                     if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
@@ -203,17 +203,17 @@ class Matrix(object):
                 if self.indexAvailable[index]:
                     link.append((index, self.cellHeight, 1))
 
-            if hz <= indexRange[2]:
+            if hz < indexRange[2]:
                 index = int(x + y * indexRange[0] + hz * indexRange[0] * indexRange[1])
                 if self.indexAvailable[index]:
                     link.append((index, self.cellHeight, 1))
 
-                if hy <= indexRange[1]:
+                if hy < indexRange[1]:
                     index = int(x + hy * indexRange[0] + hz * indexRange[0] * indexRange[1])
                     if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
 
-            if hy <= indexRange[1]:
+            if hy < indexRange[1]:
                 index = int(x + hy * indexRange[0] + z * indexRange[0] * indexRange[1])
                 if self.indexAvailable[index]:
                     link.append((index, self.cellWidth, 0))
@@ -223,7 +223,7 @@ class Matrix(object):
                     if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
 
-            if hx <= indexRange[0]:
+            if hx < indexRange[0]:
                 index = int(hx + y * indexRange[0] + z * indexRange[0] * indexRange[1])
                 if self.indexAvailable[index]:
                     link.append((index, self.cellLength, 0))
@@ -233,7 +233,7 @@ class Matrix(object):
                     if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
 
-                if hz <= indexRange[2]:
+                if hz < indexRange[2]:
                     index = int(hx + y * indexRange[0] + hz * indexRange[0] * indexRange[1])
                     if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
@@ -248,12 +248,12 @@ class Matrix(object):
                         if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
 
-                    if hz <= indexRange[2]:
+                    if hz < indexRange[2]:
                         index = int(hx + ly * indexRange[0] + hz * indexRange[0] * indexRange[1])
                         if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
 
-                if hy <= indexRange[1]:
+                if hy < indexRange[1]:
                     index = int(hx + hy * indexRange[0] + z * indexRange[0] * indexRange[1])
                     if self.indexAvailable[index]:
                         link.append((index, self.horizontalDist, 0))
@@ -263,7 +263,7 @@ class Matrix(object):
                         if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
 
-                    if hz <= indexRange[2]:
+                    if hz < indexRange[2]:
                         index = int(hx + hy * indexRange[0] + hz * indexRange[0] * indexRange[1])
                         if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
@@ -283,7 +283,7 @@ class Matrix(object):
                         if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
 
-                    if hz <= indexRange[2]:
+                    if hz < indexRange[2]:
                         index = int(lx + ly * indexRange[0] + hz * indexRange[0] * indexRange[1])
                         if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
@@ -293,17 +293,17 @@ class Matrix(object):
                     if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
 
-                if hz <= indexRange[2]:
+                if hz < indexRange[2]:
                     index = int(lx + y * indexRange[0] + hz * indexRange[0] * indexRange[1])
                     if self.indexAvailable[index]:
                         link.append((index, self.verticalDist, 2))
 
-                if hy <= indexRange[1]:
+                if hy < indexRange[1]:
                     index = int(lx + hy * indexRange[0] + z * indexRange[0] * indexRange[1])
                     if self.indexAvailable[index]:
                         link.append((index, self.horizontalDist, 0))
 
-                    if hz <= indexRange[2]:
+                    if hz < indexRange[2]:
                         index = int(lx + hy * indexRange[0] + hz * indexRange[0] * indexRange[1])
                         if self.indexAvailable[index]:
                             link.append((index, self.diagonalDist, 3))
