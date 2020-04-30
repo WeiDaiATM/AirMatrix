@@ -14,7 +14,7 @@ class ASwO(AStar.AStarClassic):
     algorithm for 4D trajectory planning using  A Star with obstacles (ASwO).
     used as baseline for trajectory plan efficiency
     """
-    def __init__(self, matrix, startPoint, endPoint, aircraft, startTime, dynamicObstacles, maxDuration=900):
+    def __init__(self, matrix, startPoint, endPoint, aircraft, startTime, dynamicObstacles, odPairs = None, maxDuration=900, endAvoidance = None):
         """
 
         :param matrix:
@@ -29,6 +29,8 @@ class ASwO(AStar.AStarClassic):
         self.departureTime = startTime
         self.activeObstacles = dynamicObstacles.dynamicObsList[:, startTime:(startTime+maxDuration)]
         self.startTime = startTime
+        self.endAvoidance = endAvoidance
+        self.odPairs = odPairs
 
     # def Search(self):
     #     # plan trajectory with regading obstacles
@@ -99,6 +101,13 @@ class ASwO(AStar.AStarClassic):
                                                   self.matrix.indexRange[0] + minF.point.z * self.matrix.indexRange[0] *
                                                   self.matrix.indexRange[1]))
             for nextIndex in neighbours:
+                neighbourPoint = AStar.Point((self.matrix.FindInNodelist(nextIndex[0]).x,
+                                       self.matrix.FindInNodelist(nextIndex[0]).y,
+                                       self.matrix.FindInNodelist(nextIndex[0]).z))
+                if not (neighbourPoint == self.endPoint or neighbourPoint == self.startPoint):
+                    if neighbourPoint in self.odPairs:
+                        continue
+
                 if not sum(self.activeObstacles[nextIndex[0], :]) == 0:
                     continue
 
@@ -133,9 +142,10 @@ class ASwO(AStar.AStarClassic):
                 return "None"
 
 class MultiASwO(object):
-    def __init__(self, matrix, trafficPlan, duration, dynamicObstacles = None):
+    def __init__(self, matrix, traffic, duration, dynamicObstacles = None):
         self.matrix = matrix
-        self.trafficPlan = trafficPlan
+        self.odPairs = traffic.odPairs
+        self.trafficPlan = traffic.trafficPlan
         if dynamicObstacles:
             self.dynamicObstacles = dynamicObstacles
         else:
@@ -157,7 +167,7 @@ class MultiASwO(object):
         i = 1
         for flight in self.trafficPlan.scheduledFlights:
             pathFinder = ASwO(self.matrix, flight.startPoint, flight.endPoint, flight.aircraft, flight.departureTime,
-                              self.dynamicObstacles)
+                              self.dynamicObstacles, self.odPairs)
             plannedTrajectory = pathFinder.Search()
             self.AddDynamicObstacle(plannedTrajectory)
             self.planResult.append(plannedTrajectory)
