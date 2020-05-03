@@ -252,5 +252,5 @@ class AStarMultiple(object):
     def MultiSearch(self):
         for flight in self.trafficPlan.scheduledFlights:
             pathFinder = AStarClassic(self.matrix, flight.startPoint, flight.endPoint, flight.aircraft)
-            trajectory = Trajectory(self.matrix, pathFinder.search(), self.aircraft, flight.departureTime)
+            trajectory = Trajectory(self.matrix, pathFinder.Search(), flight.aircraft, flight.departureTime)
             self.planResult.append(trajectory)
