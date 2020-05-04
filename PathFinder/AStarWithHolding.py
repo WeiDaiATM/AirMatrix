@@ -13,14 +13,20 @@ class AStarWithHolding(AStarwObstacle.MultiASwO):
     def __init__(self, matrix, traffic, duration=3600, dynamicObstacles=None):
         super(AStarWithHolding, self).__init__(matrix, traffic, duration, dynamicObstacles)
         # plan trajectory
+        self.traffic = traffic
         self.initPlanner = AStar.AStarMultiple(self.matrix, self.traffic.trafficPlan)
-        self.initPlanner.MultiSearch()
         self.planResult = list()
         self.duration = duration
 
-    def conflictSolver(self):
+    def InitialPlan(self):
+        self.initPlanner.MultiSearch()
+
+    def ConflictSolver(self):
         # solve conflict with holding
+        nHolding = 1
+        nFlight = 0
         for flightTrajectory in self.initPlanner.planResult:
+            nFlight = nFlight+1
             newTrajectory = list()
 
             holdTime = 0
@@ -31,7 +37,7 @@ class AStarWithHolding(AStarwObstacle.MultiASwO):
             eTime = np.ceil((startLeg[2] + flightTrajectory.trajectory[1][2]) / 2)
 
             while(holdTime < maxHolding):
-                if sum(self.dynamicObstacle.dynamicObsList[startLeg[1]][sTime + holdTime, eTime + holdTime]) == 0:
+                if sum(self.dynamicObstacles.dynamicObsList[startLeg[1]][int(sTime + holdTime):int(eTime + holdTime)]) == 0:
                     break
                 holdTime = holdTime+1
             newTrajectory.append((startLeg[0], startLeg[1], startLeg[2]+holdTime))
@@ -40,16 +46,44 @@ class AStarWithHolding(AStarwObstacle.MultiASwO):
                 nextLeg = flightTrajectory.trajectory[i+1]
 
                 sTime = int((flightTrajectory.trajectory[i][2] + nextLeg[2]) / 2)
-                if i < len(flightTrajectory.trajectory)-1:
-                    eTime = np.ceil((flightTrajectory.trajectory[i+2][2] + flightTrajectory.trajectory[i+1][i]) / 2)
+                if i < len(flightTrajectory.trajectory)-2:
+                    eTime = np.ceil((flightTrajectory.trajectory[i+2][2] + flightTrajectory.trajectory[i+1][2]) / 2)
                 else:
-                    eTime = flightTrajectory.trajectory[i+1][i]
+                    eTime = flightTrajectory.trajectory[i+1][2]
 
-                while(holdTime < maxHolding):
-                    if sum(self.dynamicObstacle.dynamicObsList[nextLeg[1]][sTime+holdTime, eTime+holdTime]) == 0:
-                        break
-                    holdTime = holdTime + 1
+                if sum(self.dynamicObstacles.dynamicObsList[nextLeg[1]][
+                       int(sTime + holdTime): int(eTime + holdTime)]) == 0:
+                    newTrajectory.append((nextLeg[0], nextLeg[1], nextLeg[2] + holdTime))
+                    continue
+                else:
 
-                newTrajectory.append((flightTrajectory.trajectory[i][0], flightTrajectory.trajectory[i][1],
-                                flightTrajectory.trajectory[i[2+holdTime]]))
-                newTrajectory.append((nextLeg[0], nextLeg[1], nextLeg[2]+holdTime))
+                    while (holdTime < maxHolding):
+                        if sum(self.dynamicObstacles.dynamicObsList[nextLeg[1]][
+                               int(sTime + holdTime): int(eTime + holdTime)]) == 0:
+                            break
+                        holdTime = holdTime + 1
+                    print("holding no")
+                    print(nHolding)
+                    print("performed with flight no.")
+                    print(nFlight)
+                    print("hold length")
+                    print(holdTime)
+                    print("-----------")
+                    nHolding = nHolding + 1
+
+                    newTrajectory.append((flightTrajectory.trajectory[i][0], flightTrajectory.trajectory[i][1],
+                                          (flightTrajectory.trajectory[i][2] + holdTime)))
+                    newTrajectory.append((nextLeg[0], nextLeg[1], (nextLeg[2] + holdTime)))
+
+                # while(holdTime < maxHolding):
+                #     if sum(self.dynamicObstacles.dynamicObsList[nextLeg[1]][int(sTime+holdTime): int(eTime+holdTime)]) == 0:
+                #         break
+                #     holdTime = holdTime + 1
+                #
+                # newTrajectory.append((flightTrajectory.trajectory[i][0], flightTrajectory.trajectory[i][1],
+                #                 flightTrajectory.trajectory[i][2]+holdTime))
+                # newTrajectory.append((nextLeg[0], nextLeg[1], nextLeg[2]+holdTime))
+            flightTrajectory.trajectory = newTrajectory
+
+            self.AddDynamicObstacle(flightTrajectory)
+            self.planResult.append(flightTrajectory)

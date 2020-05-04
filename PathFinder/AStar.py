@@ -30,27 +30,7 @@ class Point(object):
 
 
 class Node(object):
-    # def __init__(self, point, endPoint, gainHorizontal=5, gainVertical=10, g=0):
-    #     """
-    #     :param point: (x,y,z)
-    #     :param endPoint: (x,y,z)
-    #     :param g: NA
-    #     """
-    #     self.point = point  # coordinate
-    #     self.endPoint = endPoint
-    #     self.g = g
-    #
-    #     # self.h = np.sqrt(gainHorizontal * gainHorizontal * abs(self.endPoint.x - self.point.x) *
-    #     #                  abs(self.endPoint.x - self.point.x) + gainHorizontal * gainHorizontal *
-    #     #                  abs(self.endPoint.y - self.point.y) * abs(self.endPoint.y - self.point.y) +
-    #     #                  gainVertical * gainVertical * abs(self.endPoint.z - self.point.z) *
-    #     #                  abs(self.endPoint.z - self.point.z))
-    #
-    #     self.h = gainHorizontal * abs(self.endPoint.x - self.point.x) + gainHorizontal * \
-    #              abs(self.endPoint.y - self.point.y) + gainVertical * abs(self.endPoint.z - self.point.z)
-    #     self.father = None
-
-    def __init__(self, point, endPoint, cellLength, cellHeight, maxSpeed, g=0):
+    def __init__(self, point, endPoint, cellLength, cellHeight, speed, g=0):
         """
         :param point: (x,y,z)
         :param endPoint: (x,y,z)
@@ -60,9 +40,30 @@ class Node(object):
         self.endPoint = endPoint
         self.g = g
 
-        self.h = np.sqrt((abs(self.endPoint.x - self.point.x) * cellLength) ** 2 +
-                         (abs(self.endPoint.y - self.point.y) * cellLength) ** 2 +
-                         (abs(self.endPoint.z - self.point.z) * cellHeight) ** 2) / maxSpeed
+        dx = abs(self.endPoint.x - self.point.x)
+        dy = abs(self.endPoint.y - self.point.y)
+        dz = abs(self.endPoint.z - self.point.z)
+
+        time = (cellLength / speed[0],
+                cellLength * np.sqrt(2) / speed[0],
+                cellHeight / speed[1],
+                np.sqrt(cellLength ** 2 + cellHeight ** 2) / speed[2],
+                np.sqrt(cellLength ** 2 * 2 + cellHeight **2) / speed[3])
+
+        t1, t2, t3, t4, t5 = time
+
+        if (dz <= dx) & (dz <= dy):
+            self.h = dz * t5 + (min(dx, dy) - dz) * t2 + (max(dx, dy) - min(dx, dy)) * t1
+        elif (dz >= dx) & (dz >= dy):
+            self.h = min(dx, dy) * t5 + (max(dx, dy)-min(dx, dy)) * t4 + (dz-max(dx, dy)) * t3
+        elif (dx >= dz) & (dz >= dy):
+            self.h = dy * t5 + (dz - dy) * t4 + (dx - dz) * t1
+        else:
+            self.h = dx * t5 + (dz - dx) * t4 + (dy - dz) * t1
+
+        # self.h = np.sqrt((abs(self.endPoint.x - self.point.x) * cellLength) ** 2 +
+        #                  (abs(self.endPoint.y - self.point.y) * cellLength) ** 2 +
+        #                  (abs(self.endPoint.z - self.point.z) * cellHeight) ** 2) / maxSpeed
         self.father = None
 
     def __eq__(self, newNode):
@@ -81,7 +82,7 @@ class Aircraft(object):
         self.mass = mass
         self.dragCoef = (self.verticalSpeed * self.mass * 10) / \
                         (self.horizontalSpeed**2 - self.verticalSpeed**2)
-        self.pMax = self.verticalSpeed**2 * self.dragCoef * 0.6 # 60% max power
+        self.pMax = self.horizontalSpeed ** 2 * self.dragCoef * 0.6 # 60% max power
         self.speed = None
 
     def SetSpeed(self, sinTheta1, sinTheta2):
@@ -195,7 +196,7 @@ class AStarClassic(object):
     def Search(self):
         # add startPoint to openList
         # startNode = Node(self.startPoint, self.endPoint, self.gainHorizontal, self.gainVertical)
-        startNode = Node(self.startPoint, self.endPoint, self.matrix.cellLength, self.matrix.cellHeight, self.aircraft.speed[0])
+        startNode = Node(self.startPoint, self.endPoint, self.matrix.cellLength, self.matrix.cellHeight, self.aircraft.speed)
         self.openList.append(startNode)
         # search
         while True:
@@ -217,7 +218,7 @@ class AStarClassic(object):
                 if self.PointInCloseList(currentPoint):  # ignore if in close list
                     continue
                 # nextNode = Node(currentPoint, self.endPoint, self.gainHorizontal, self.gainVertical)
-                nextNode = Node(currentPoint, self.endPoint, self.matrix.cellLength, self.matrix.cellHeight, self.aircraft.speed[0])
+                nextNode = Node(currentPoint, self.endPoint, self.matrix.cellLength, self.matrix.cellHeight, self.aircraft.speed)
                 nextNode.g = minF.g + nextIndex[1] / self.aircraft.speed[nextIndex[2]]
 
                 existNode = self.PointInOpenList(currentPoint)  # return if the node exist in open list
@@ -250,7 +251,10 @@ class AStarMultiple(object):
         self.planResult = list()
 
     def MultiSearch(self):
+        # ct = 1
         for flight in self.trafficPlan.scheduledFlights:
             pathFinder = AStarClassic(self.matrix, flight.startPoint, flight.endPoint, flight.aircraft)
             trajectory = Trajectory(self.matrix, pathFinder.Search(), flight.aircraft, flight.departureTime)
             self.planResult.append(trajectory)
+            # print(ct)
+            # ct=ct+1

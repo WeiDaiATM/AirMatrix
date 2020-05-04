@@ -10,7 +10,9 @@ class TrafficGenerator(object):
         startPoints = list()
         for j in range(matrix.indexRange[0]):
             for k in range(matrix.indexRange[1]):
-                startPoints.append(AStar.Point((j, k, 0)))
+                startPoints.append(AStar.Point((j,k,0)))
+                # for l in range(matrix.indexRange[2]):
+                #     startPoints.append(AStar.Point((j, k, l)))
 
         self.odPairs = random.sample(startPoints, 2*noFlights)
 

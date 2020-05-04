@@ -83,7 +83,7 @@ class ASwO(AStar.AStarClassic):
     def Search(self):
         # add startPoint to openList
         # startNode = AStar.Node(self.startPoint, self.endPoint, self.gainHorizontal, self.gainVertical)
-        startNode = AStar.Node(self.startPoint, self.endPoint, self.matrix.cellLength, self.matrix.cellHeight, self.aircraft.speed[0])
+        startNode = AStar.Node(self.startPoint, self.endPoint, self.matrix.cellLength, self.matrix.cellHeight, self.aircraft.speed)
 
         self.openList.append(startNode)
         # search
@@ -116,7 +116,7 @@ class ASwO(AStar.AStarClassic):
                 if self.PointInCloseList(currentPoint):  # ignore if in close list
                     continue
                 # nextNode = AStar.Node(currentPoint, self.endPoint, self.gainHorizontal, self.gainVertical)
-                nextNode = AStar.Node(currentPoint, self.endPoint, self.matrix.cellLength, self.matrix.cellHeight, self.aircraft.speed[0])
+                nextNode = AStar.Node(currentPoint, self.endPoint, self.matrix.cellLength, self.matrix.cellHeight, self.aircraft.speed)
 
                 nextNode.g = minF.g + nextIndex[1] / self.aircraft.speed[nextIndex[2]]
 
@@ -154,12 +154,12 @@ class MultiASwO(object):
 
     def AddDynamicObstacle(self, trajectory):
         startT = trajectory.trajectory[0][2]
-        atT = 0
+        atT = trajectory.trajectory[0][2]
         for i in range(len(trajectory.trajectory)-1):
             self.dynamicObstacles.SetDynamicObstacle(trajectory.trajectory[i][1], startT,
-                                                     np.ceil((trajectory.trajectory[i+1][2]-atT)/2))
-            startT = (trajectory.trajectory[i+1][2]-atT)/2
-            atT = trajectory.trajectory[i][2]
+                                                     np.ceil((trajectory.trajectory[i+1][2] + atT) / 2))
+            startT = int((trajectory.trajectory[i+1][2] + atT) / 2)
+            atT = trajectory.trajectory[i + 1][2]
         self.dynamicObstacles.SetDynamicObstacle(trajectory.trajectory[len(trajectory.trajectory)-1][1], startT,
                                                  trajectory.trajectory[len(trajectory.trajectory)-1][2])
 

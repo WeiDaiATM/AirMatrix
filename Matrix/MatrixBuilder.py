@@ -87,8 +87,8 @@ class Matrix(object):
 
         self.nodeList = list()
 
-        self.sinTheta1 = self.cellHeight / self.cellLength
-        self.sinTheta2 = self.cellHeight / np.sqrt(self.cellLength * self.cellLength + self.cellWidth * self.cellWidth)
+        self.sinTheta1 = self.cellHeight / np.sqrt(self.cellLength ** 2 + self.cellHeight ** 2)
+        self.sinTheta2 = self.cellHeight / np.sqrt(self.cellLength ** 2 + self.cellWidth **2 + self.cellHeight ** 2)
 
         self.staticObstacles = obstacles
         self.network = None
