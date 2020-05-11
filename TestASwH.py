@@ -1,7 +1,7 @@
 from Matrix import MatrixBuilder
 from PathFinder import AStarWithHolding
 from SimulationEngine import TrafficGenerator
-from SimulationEngine import  RandomAircraftCreator
+from SimulationEngine import RandomAircraftCreator
 import time
 import copy
 

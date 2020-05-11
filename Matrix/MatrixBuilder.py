@@ -47,6 +47,9 @@ class StaticObstacles(object):
 
 
 class Cell(object):
+    """
+    cell class used in matrix building
+    """
     def __init__(self, x, y, z, cellLength, cellHeight):
         self.x = x
         self.y = y
@@ -67,7 +70,6 @@ class Cell(object):
 class Matrix(object):
     def __init__(self, matrixRange, cellLength=100, cellHeight=100, obstacles=None):
         """
-
         :param matrixRange: (x,y,z)
         :param cellLength:
         :param cellHeight:
@@ -115,6 +117,10 @@ class Matrix(object):
         self.indexAvailable = np.append(self.indexAvailable, falses)
 
     def MatrixConstructor(self):
+        """
+        build matrix network(nodes and links) for airmatrix
+        :return:
+        """
         self.network = list()
         for node in self.nodeList:
             x, y, z = node.x, node.y, node.z
@@ -315,6 +321,10 @@ class Matrix(object):
             self.network.append(link)
 
     def FindInNetwork(self, index):
+        """
+        :param index:
+        :return: cell referring to the index
+        """
         maxIndex = len(self.nodeList)-1
         minIndex = 0
         i = int(maxIndex/2)
@@ -329,6 +339,11 @@ class Matrix(object):
                 i = int((minIndex + i)/2)
 
     def FindInNodelist(self, index):
+        """
+
+        :param index:
+        :return: neighbours (as a list) referring to the index
+        """
         maxIndex = len(self.nodeList) - 1
         minIndex = 0
         i = int(maxIndex / 2)
