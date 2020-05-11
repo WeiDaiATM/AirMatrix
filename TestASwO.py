@@ -10,6 +10,7 @@ import time
 
 aircraftList = RandomAircraftCreator.AircraftDataBase()
 airmatrix = MatrixBuilder.Matrix((5000, 5000, 2000))
+airmatrix.NodeListConstructor()
 airmatrix.MatrixConstructor()
 
 traffic = TrafficGenerator.TrafficGenerator(airmatrix, aircraftList, 100)

@@ -10,40 +10,39 @@ Matrix Building class
 import numpy as np
 
 class Building(object):
-    def __init__(self, alt, lon, length, width, height):
+    def __init__(self, lon, lat, length, width, height):
         """
-
         :param alt:
         :param lon:
         :param length: x direction (longitude)
         :param width: y direction (latitude)
         :param height:
         """
-        self.alt = alt
         self.lon = lon
+        self.lat = lat
         self.length = length
         self.width = width
         self.length = length
         self.height = height
 
 
-class StaticObstacles(object):
-    def __init__(self):
-        self.staticObsList = list()
-
-    def AddObstacle(self, obs):
-        self.staticObsList.append(obs)
-
-    def CellInObstacle(self, cell):
-        for obs in self.staticObsList:
-            # if a cell and a building overlap each other
-            if (cell.alt - 0.5 * cell.height) >= obs.height or (
-                    cell.lon - 0.5 * cell.length) >= (obs.lon + 0.5 * obs.length) or (
-                    cell.lon + 0.5 * cell.length) < (obs.lon - 0.5 * obs.length) or (
-                    cell.lat - 0.5 * cell.width) >= (obs.lat + 0.5 * obs.width) or (
-                    cell.lat + 0.5 * cell.width) < (obs.lat - 0.5 * obs.width):
-                return False
-            return True
+# class StaticObstacles(object):
+#     def __init__(self):
+#         self.staticObsList = list()
+#
+#     def AddObstacle(self, obs):
+#         self.staticObsList.append(obs)
+#
+#     def CellInObstacle(self, cell):
+#         for obs in self.staticObsList:
+#             # if a cell and a building overlap each other
+#             if (cell.alt - 0.5 * cell.height) >= obs.height or (
+#                     cell.lon - 0.5 * cell.length) >= (obs.lon + 0.5 * obs.length) or (
+#                     cell.lon + 0.5 * cell.length) < (obs.lon - 0.5 * obs.length) or (
+#                     cell.lat - 0.5 * cell.width) >= (obs.lat + 0.5 * obs.width) or (
+#                     cell.lat + 0.5 * cell.width) < (obs.lat - 0.5 * obs.width):
+#                 return False
+#             return True
 
 
 class Cell(object):
@@ -60,7 +59,7 @@ class Cell(object):
         self.height = cellHeight
 
         self.lon = self.x * self.length + 0.5 * self.length
-        self.alt = self.y * self.width + 0.5 * self.width
+        self.lat = self.y * self.width + 0.5 * self.width
         self.alt = self.z * self.height + 0.5 * self.height
 
     def SetIndex(self, index):
@@ -68,13 +67,17 @@ class Cell(object):
 
 
 class Matrix(object):
-    def __init__(self, matrixRange, cellLength=100, cellHeight=100, obstacles=None):
+    def __init__(self, matrixRange, cellLength=100, cellHeight=100):
         """
         :param matrixRange: (x,y,z)
         :param cellLength:
         :param cellHeight:
         :param obstacles: False to disable static obstacles
         """
+        if not(((matrixRange[0] % cellLength) == 0) and ((matrixRange[1] % cellLength) ==0) and
+               ((matrixRange[2] % cellHeight) == 0)):
+            print("matrix range and size doesn't fit, please re-do it")
+
         self.matrixRange = matrixRange
         self.cellLength = cellLength
         self.cellWidth = cellLength
@@ -84,17 +87,19 @@ class Matrix(object):
             self.cellLength * self.cellLength + self.cellHeight * self.cellHeight)  # assuming width = length
         self.diagonalDist = np.sqrt(self.cellLength * self.cellLength + self.cellWidth * self.cellWidth +
                                     self.cellHeight * self.cellHeight)
-        self.indexRange = (int(matrixRange[0] / self.cellLength + 1), int(matrixRange[1] / self.cellWidth + 1),
-                           int(matrixRange[2] / self.cellHeight + 1))
+        self.indexRange = (int(matrixRange[0] / self.cellLength), int(matrixRange[1] / self.cellWidth),
+                           int(matrixRange[2] / self.cellHeight))
 
         self.nodeList = list()
 
         self.sinTheta1 = self.cellHeight / np.sqrt(self.cellLength ** 2 + self.cellHeight ** 2)
-        self.sinTheta2 = self.cellHeight / np.sqrt(self.cellLength ** 2 + self.cellWidth **2 + self.cellHeight ** 2)
+        self.sinTheta2 = self.cellHeight / np.sqrt(self.cellLength ** 2 + self.cellWidth ** 2 + self.cellHeight ** 2)
 
-        self.staticObstacles = obstacles
+        self.staticObstacles = None
         self.network = None
 
+    def NodeListConstructor(self, obstacles=None):
+        self.staticObstacles = obstacles
         indexRange = self.indexRange
         for z in range(indexRange[2]):
             for y in range(indexRange[1]):

@@ -19,7 +19,7 @@ class ASD(AStar.AStarClassic):
             # find minF
             minF = self.GetMinNode()
 
-            #minF to closeList
+            # minF to closeList
             self.closeList.append(minF)
             self.openList.remove(minF)
 
