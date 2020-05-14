@@ -8,11 +8,19 @@ class TrafficGenerator(object):
         self.trafficPlan = TrafficPlan.TrafficPlan()
 
         startPoints = list()
+
         for j in range(matrix.indexRange[0]):
             for k in range(matrix.indexRange[1]):
-                startPoints.append(AStar.Point((j,k,0)))
-                # for l in range(matrix.indexRange[2]):
-                #     startPoints.append(AStar.Point((j, k, l)))
+                for l in range(matrix.indexRange[2]):
+                    index = int(j + k * matrix.indexRange[0] + l * matrix.indexRange[0] * matrix.indexRange[1])
+                    if matrix.indexAvailable[index]:
+                        startPoints.append(AStar.Point((j, k, l)))
+
+        # for j in range(matrix.indexRange[0]):
+        #     for k in range(matrix.indexRange[1]):
+        #         index = int(j + k * matrix.indexRange[0] + l * matrix.indexRange[0] * matrix.indexRange[1])
+        #         if matrix.indexAvailable[index]:
+        #             startPoints.append(AStar.Point((j,k,0)))
 
         self.odPairs = random.sample(startPoints, 2*noFlights)
 

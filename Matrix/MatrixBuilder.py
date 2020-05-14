@@ -83,8 +83,8 @@ class Matrix(object):
         self.cellWidth = cellLength
         self.cellHeight = cellHeight
         self.horizontalDist = np.sqrt(self.cellLength * self.cellLength + self.cellWidth * self.cellWidth)
-        self.verticalDist = np.sqrt(
-            self.cellLength * self.cellLength + self.cellHeight * self.cellHeight)  # assuming width = length
+        self.verticalDist = np.sqrt(self.cellLength * self.cellLength + self.cellHeight *
+                                    self.cellHeight)  # assuming width = length
         self.diagonalDist = np.sqrt(self.cellLength * self.cellLength + self.cellWidth * self.cellWidth +
                                     self.cellHeight * self.cellHeight)
         self.indexRange = (int(matrixRange[0] / self.cellLength), int(matrixRange[1] / self.cellWidth),
@@ -92,8 +92,8 @@ class Matrix(object):
 
         self.nodeList = list()
 
-        self.sinTheta1 = self.cellHeight / np.sqrt(self.cellLength ** 2 + self.cellHeight ** 2)
-        self.sinTheta2 = self.cellHeight / np.sqrt(self.cellLength ** 2 + self.cellWidth ** 2 + self.cellHeight ** 2)
+        self.sinTheta1 = self.cellHeight / self.verticalDist
+        self.sinTheta2 = self.cellHeight / self.diagonalDist
 
         self.staticObstacles = None
         self.network = None
@@ -331,7 +331,11 @@ class Matrix(object):
         :return: cell referring to the index
         """
         maxIndex = len(self.nodeList)-1
+        if self.nodeList[maxIndex].index == index:
+            return self.network[maxIndex]
         minIndex = 0
+        if self.nodeList[0].index == index:
+            return self.network[0]
         i = int(maxIndex/2)
         while True:
             if self.nodeList[i].index == index:
@@ -350,7 +354,11 @@ class Matrix(object):
         :return: neighbours (as a list) referring to the index
         """
         maxIndex = len(self.nodeList) - 1
+        if self.nodeList[maxIndex].index == index:
+            return self.nodeList[maxIndex]
         minIndex = 0
+        if self.nodeList[0].index == index:
+            return self.nodeList[0]
         i = int(maxIndex / 2)
         while True:
             if self.nodeList[i].index == index:
