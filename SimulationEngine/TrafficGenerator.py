@@ -11,10 +11,17 @@ class TrafficGenerator(object):
 
         for j in range(matrix.indexRange[0]):
             for k in range(matrix.indexRange[1]):
-                for l in range(matrix.indexRange[2]):
+                l=0
+                while True:
                     index = int(j + k * matrix.indexRange[0] + l * matrix.indexRange[0] * matrix.indexRange[1])
                     if matrix.indexAvailable[index]:
                         startPoints.append(AStar.Point((j, k, l)))
+                        break
+                    l = l+1
+                # for l in range(matrix.indexRange[2]):
+                #     index = int(j + k * matrix.indexRange[0] + l * matrix.indexRange[0] * matrix.indexRange[1])
+                #     if matrix.indexAvailable[index]:
+                #         startPoints.append(AStar.Point((j, k, l)))
 
         # for j in range(matrix.indexRange[0]):
         #     for k in range(matrix.indexRange[1]):

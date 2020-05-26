@@ -97,7 +97,7 @@ class Aircraft(object):
         climbSpeed2 = (-self.mass * 10 * sinTheta2 + np.sqrt(
             self.mass * self.mass * 100 * sinTheta2 * sinTheta2 + 4 * self.dragCoef * self.pMax)) / 2 / self.dragCoef
         # take 60% of max speed as cruising speed
-        self.speed = (self.horizontalSpeed * 0.6, self.verticalSpeed * 0.6, climbSpeed1, climbSpeed2)
+        self.speed = (self.horizontalSpeed * 0.6, self.verticalSpeed * 0.6, climbSpeed1 * 0.6, climbSpeed2 * 0.6)
 
 
 class Trajectory(object):
