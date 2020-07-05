@@ -5,7 +5,7 @@ from SimulationEngine import RandomAircraftCreator
 import time
 
 aircraftList = RandomAircraftCreator.AircraftDataBase()
-airmatrix = MatrixBuilder.Matrix((3000, 3000, 2000))
+airmatrix = MatrixBuilder.Matrix((3000, 3000, 2000), 100, 50)
 airmatrix.NodeListConstructor()
 airmatrix.MatrixConstructor()
 traffic = TrafficGenerator.TrafficGenerator(airmatrix, aircraftList, 100)
