@@ -30,6 +30,8 @@ class ASD(AStar.AStarClassic):
                 neighbourPoint = AStar.Point((self.matrix.FindInNodelist(nextIndex[0]).x,
                                        self.matrix.FindInNodelist(nextIndex[0]).y,
                                        self.matrix.FindInNodelist(nextIndex[0]).z))
+
+                # avoid conflicting with the other OD pairs
                 if not (neighbourPoint == self.endPoint or neighbourPoint == self.startPoint):
                     if neighbourPoint in self.odPairs:
                         continue
@@ -84,5 +86,5 @@ class MultiASD(AStarwObstacle.MultiASwO):
             plannedTrajectory = pathFinder.Search()
             self.AddDynamicObstacle(plannedTrajectory)
             self.planResult.append(plannedTrajectory)
-            print(i)
+            #print(i)
             i = i+1

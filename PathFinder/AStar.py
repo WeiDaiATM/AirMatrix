@@ -65,6 +65,9 @@ class Node(object):
         #                  (abs(self.endPoint.y - self.point.y) * cellLength) ** 2 +
         #                  (abs(self.endPoint.z - self.point.z) * cellHeight) ** 2) / maxSpeed
         self.father = None
+        self.timeEntering = None # reserved for 4D algorithm
+        self.afterHolding = False # reserved for 4D algorithm
+        self.holdingTime = None
 
     def __eq__(self, newNode):
         if self.point == newNode.point:
@@ -129,6 +132,10 @@ class Trajectory(object):
                     speed = aircraft.speed[link[2]]
             t = t + np.ceil(distance / speed)
             self.trajectory.append((node, currentIndex, t))
+
+            nextnode = nodeList[i+2]
+            if nextnode.afterholding:
+                self.trajectory.append((node, currentIndex, t+nextnode.holdingTime))
 
 
 class AStarClassic(object):

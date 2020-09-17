@@ -22,7 +22,6 @@ class Building(object):
         self.lat = lat
         self.length = length
         self.width = width
-        self.length = length
         self.height = height
 
 

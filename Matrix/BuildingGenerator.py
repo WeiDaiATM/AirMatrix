@@ -7,7 +7,8 @@ class BuildingGenerator(object):
         self.matrix = None
         self.staticObsList = list()
 
-    def Generate(self, matrix, noBuilding=50, maxLength=100, minLength=10, maxWidth=100, minWidth=10, maxHeight=500, minHeight=10):
+    def Generate(self, matrix, noBuilding=50, maxLength=100, minLength=10, maxWidth=100, minWidth=10,
+                 maxHeight=500, minHeight=10):
         for i in range(noBuilding):
             length = random.randint(minLength, maxLength)
             width = random.randint(minWidth, maxWidth)
