@@ -120,22 +120,42 @@ class Trajectory(object):
 
         t = startTime
         # self.nodeList.remove(self.nodeList[0])
+        # for i in range(len(nodeList)-2):
+        #     node = nodeList[i+1]
+        #     currentIndex = node.point.x + node.point.y * matrix.indexRange[0] + node.point.z * matrix.indexRange[0] * \
+        #                    matrix.indexRange[1]
+        #     links = matrix.FindInNetwork(node.father.point.x + node.father.point.y * matrix.indexRange[0] +
+        #                             node.father.point.z * matrix.indexRange[0] * matrix.indexRange[1])
+        #     for link in links:
+        #         if link[0] == currentIndex:
+        #             distance = link[1]
+        #             speed = aircraft.speed[link[2]]
+        #     t = t + np.ceil(distance / speed)
+        #     self.trajectory.append((node, currentIndex, t))
+        #
+        #     nextnode = nodeList[i+2]
+        #     if nextnode.afterHolding:
+        #         self.trajectory.append((node, currentIndex, t+nextnode.holdingTime))
+
         for i in range(len(nodeList)-1):
-            node = nodeList[i+1]
+            node = nodeList[i]#get current node
             currentIndex = node.point.x + node.point.y * matrix.indexRange[0] + node.point.z * matrix.indexRange[0] * \
                            matrix.indexRange[1]
-            links = matrix.FindInNetwork(node.father.point.x + node.father.point.y * matrix.indexRange[0] +
-                                    node.father.point.z * matrix.indexRange[0] * matrix.indexRange[1])
+
+            nextNode = nodeList[i + 1]  # get next node
+            if nextNode.afterHolding:  # if holding required at current node
+                t += nextNode.holdingTime
+                self.trajectory.append((node, currentIndex, t))  # add holding
+            nextIndex = nextNode.point.x + nextNode.point.y * matrix.indexRange[0] + nextNode.point.z * \
+                        matrix.indexRange[0] * matrix.indexRange[1]
+
+            links = matrix.FindInNetwork(currentIndex)
             for link in links:
-                if link[0] == currentIndex:
+                if link[0] == nextIndex:
                     distance = link[1]
                     speed = aircraft.speed[link[2]]
             t = t + np.ceil(distance / speed)
-            self.trajectory.append((node, currentIndex, t))
-
-            nextnode = nodeList[i+2]
-            if nextnode.afterholding:
-                self.trajectory.append((node, currentIndex, t+nextnode.holdingTime))
+            self.trajectory.append((node, nextIndex, t))
 
 
 class AStarClassic(object):
@@ -152,7 +172,6 @@ class AStarClassic(object):
         self.matrix = matrix
         self.startPoint = startPoint
         self.endPoint = endPoint
-        self.matrix = matrix
         self.aircraft = aircraft
         self.aircraft.SetSpeed(self.matrix.sinTheta1, self.matrix.sinTheta2)
 

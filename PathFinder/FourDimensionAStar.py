@@ -38,6 +38,8 @@ class FourDimensionalAStar(AStar.AStarClassic):
                 if not (neighbourPoint == self.endPoint or neighbourPoint == self.startPoint):
                     if neighbourPoint in self.odPairs:
                         continue
+                if self.PointInCloseList(neighbourPoint): # ignore if in close list
+                    continue
 
                 timeEntering = int(self.departureTime + minF.g + nextIndex[1] / self.aircraft.speed[nextIndex[2]] / 2)
                 neighbourPoint.timeEntering = timeEntering
@@ -101,8 +103,8 @@ class FourDimensionalAStar(AStar.AStarClassic):
                         lastNode = lastNode.father
                     else:
                         pathList.append(startNode)
-                        return list(reversed(pathList))
-                        # return Trajectory(self.matrix, list(reversed(pathList)), self.aircraft)
+                        # return list(reversed(pathList))
+                        return AStar.Trajectory(self.matrix, list(reversed(pathList)), self.aircraft, self.departureTime)
             if len(self.openList) == 0:
                 return None
 
@@ -122,12 +124,9 @@ class Multi4DAstar(AStarwObstacle.MultiASwO):
         super(Multi4DAstar, self).__init__(matrix, traffic, duration, dynamicObstacles)
 
     def MultiSearch(self):
-        i = 1
         for flight in self.trafficPlan.scheduledFlights:
             pathFinder = FourDimensionalAStar(self.matrix, flight.startPoint, flight.endPoint, flight.aircraft, flight.departureTime,
                               self.dynamicObstacles, self.odPairs)
             plannedTrajectory = pathFinder.Search()
             self.AddDynamicObstacle(plannedTrajectory)
             self.planResult.append(plannedTrajectory)
-            print(i)
-            i += 1
