@@ -76,10 +76,11 @@ class Node(object):
 
 
 class Aircraft(object):
-    def __init__(self, horizontalMaxSpeed=25, verticalMaxSpeed=5, mass=3):
+    def __init__(self, name, horizontalMaxSpeed=25, verticalMaxSpeed=5, mass=3, occupation=1):
         """
         :param speed: (horizontal, vertical)
         """
+        self.name = name
         self.horizontalSpeed = horizontalMaxSpeed
         self.verticalSpeed = verticalMaxSpeed
         self.mass = mass
@@ -87,6 +88,7 @@ class Aircraft(object):
                         (self.horizontalSpeed**2 - self.verticalSpeed**2)
         self.pMax = self.horizontalSpeed ** 2 * self.dragCoef * 0.6 # 60% max power
         self.speed = None
+        self.occupation = occupation
 
     def SetSpeed(self, sinTheta1, sinTheta2):
         """
