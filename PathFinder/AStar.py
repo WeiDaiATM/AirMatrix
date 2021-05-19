@@ -157,12 +157,12 @@ class Trajectory(object):
                     distance = link[1]
                     speed = aircraft.speed[link[2]]
             t = t + np.ceil(distance / speed)
-            self.trajectory.append((node, nextIndex, t))
+            self.trajectory.append((nextNode, nextIndex, t))
 
 
 class AStarClassic(object):
     # 3-d a star algorithm
-    def __init__(self, matrix, startPoint, endPoint, aircraft):
+    def __init__(self, matrix, startPoint, endPoint, aircraft, odPairs=None):
         """
         :param matrix: pre-generated atrix object
         :param startPoint: Point(x,y,z)
@@ -179,9 +179,10 @@ class AStarClassic(object):
 
         # self.gainHorizontal = matrix.cellLength
         # self.gainVertical = matrix.cellHeight
-        self.gainHorizontal = self.matrix.cellWidth / self.aircraft.horizontalSpeed
-        self.gainVertical = self.matrix.cellHeight / self.aircraft.verticalSpeed
+        self.gainHorizontal = self.matrix.cellWidth / self.aircraft.speed[0]
+        self.gainVertical = self.matrix.cellHeight / self.aircraft.speed[1]
         self.trajectory = None
+        self.odPairs = odPairs
 
     # def __init__(self, matrix, flightPlan):
     #     self.openList = []
@@ -243,6 +244,10 @@ class AStarClassic(object):
             for nextIndex in neighbours:
                 currentPoint = Point((self.matrix.FindInNodelist(nextIndex[0]).x,
                                       self.matrix.FindInNodelist(nextIndex[0]).y, self.matrix.FindInNodelist(nextIndex[0]).z))
+
+                # if not (currentPoint == self.endPoint or currentPoint == self.startPoint):
+                #     if currentPoint in self.odPairs:
+                #         continue
                 if self.PointInCloseList(currentPoint):  # ignore if in close list
                     continue
                 # nextNode = Node(currentPoint, self.endPoint, self.gainHorizontal, self.gainVertical)

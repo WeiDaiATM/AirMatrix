@@ -15,7 +15,7 @@ class FourDimensionalAStar(AStar.AStarClassic):
         startNode.timeEntering = self.departureTime
         self.openList.append(startNode)
 
-        while(True):
+        while True:
             # find minF
             minF = self.GetMinNode()
 
@@ -35,19 +35,19 @@ class FourDimensionalAStar(AStar.AStarClassic):
                                               self.matrix.FindInNodelist(nextIndex[0]).z))
 
                 # avoid conflicting with the other OD pairs
-                if not (neighbourPoint == self.endPoint or neighbourPoint == self.startPoint):
-                    if neighbourPoint in self.odPairs:
-                        continue
+                # if not (neighbourPoint == self.endPoint or neighbourPoint == self.startPoint):
+                #     if neighbourPoint in self.odPairs:
+                #         continue
                 if self.PointInCloseList(neighbourPoint): # ignore if in close list
                     continue
 
                 timeEntering = int(self.departureTime + minF.g + nextIndex[1] / self.aircraft.speed[nextIndex[2]] / 2)
-                neighbourPoint.timeEntering = timeEntering
+                # neighbourPoint.timeEntering = timeEntering
                 timeExiting = int(timeEntering + max((np.sqrt(self.matrix.cellLength ** 2 * 2 +
                                                               self.matrix.cellHeight ** 2)
                                         / self.aircraft.speed[3]),
                                        (np.sqrt(self.matrix.cellLength ** 2 + self.matrix.cellHeight ** 2) /
-                                        self.aircraft.speed[3])))
+                                        self.aircraft.speed[2])))
 
                 if not sum(self.dynamicObstacles.dynamicObsList[nextIndex[0], timeEntering:timeExiting]) == 0:# if meet an occupied block
                     for requiredHoldingTime in range(900):
@@ -66,7 +66,7 @@ class FourDimensionalAStar(AStar.AStarClassic):
                     # if holding available
                     nextNode = AStar.Node(neighbourPoint, self.endPoint, self.matrix.cellLength, self.matrix.cellHeight, self.aircraft.speed)
                     nextNode.g = minF.g + nextIndex[1]/self.aircraft.speed[nextIndex[2]] + holdingTime
-                    nextNode.timeEntering = timeEntering
+                    nextNode.timeEntering = timeExitingMinF
                     nextNode.afterHolding = True
                     nextNode.holdingTime = holdingTime
 

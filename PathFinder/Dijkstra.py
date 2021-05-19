@@ -1,8 +1,8 @@
 from PathFinder import AStar
 
 class Dij(AStar.AStarClassic):
-    def __init__(self, matrix, startPoint, endPoint, aircraft):
-        super(Dij, self).__init__(matrix, startPoint, endPoint, aircraft)
+    def __init__(self, matrix, startPoint, endPoint, aircraft, odPairs=None):
+        super(Dij, self).__init__(matrix, startPoint, endPoint, aircraft, odPairs)
 
     def Search(self):
         # add startPoint to openList
@@ -29,6 +29,9 @@ class Dij(AStar.AStarClassic):
                 currentPoint = AStar.Point((self.matrix.FindInNodelist(nextIndex[0]).x,
                                       self.matrix.FindInNodelist(nextIndex[0]).y,
                                       self.matrix.FindInNodelist(nextIndex[0]).z))
+                # if not (currentPoint == self.endPoint or currentPoint == self.startPoint):
+                #     if currentPoint in self.odPairs:
+                #         continue
                 if self.PointInCloseList(currentPoint):  # ignore if in close list
                     continue
                 # nextNode = Node(currentPoint, self.endPoint, self.gainHorizontal, self.gainVertical)
